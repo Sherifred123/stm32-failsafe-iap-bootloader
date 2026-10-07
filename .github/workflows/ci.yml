@@ -1,0 +1,32 @@
+name: CI Bootloader Verification Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Install Build Essentials & Python
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gcc python3
+
+    - name: Compile and Run Automated Unity Unit Tests
+      run: |
+        make test
+
+    - name: Build and Run Host Simulation Demo
+      run: |
+        make host
+
+    - name: Verify Python IAP Packager Utility
+      run: |
+        python3 tools/iap_packager.py --generate-test

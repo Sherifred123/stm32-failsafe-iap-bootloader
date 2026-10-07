@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%" style="background:#0f172a; font-family:'Segoe UI',system-ui,sans-serif;">
+  <defs>
+    <linearGradient id="gradBoot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="gradMeta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c2d12"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <linearGradient id="gradSlotA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065f46"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="gradSlotB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="gradFlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f87171"/>
+    </marker>
+  </defs>
+
+  <!-- Title Header -->
+  <text x="600" y="45" font-size="24" font-weight="700" fill="#f8fafc" text-anchor="middle" letter-spacing="1">
+    STM32F446RE FAILSAFE IAP BOOTLOADER ARCHITECTURE
+  </text>
+  <text x="600" y="70" font-size="13" fill="#94a3b8" text-anchor="middle">
+    Dual-Slot NOR Flash Partitioning (512 KB), Hardware CRC-32 Verification &amp; Watchdog Rollback Protection
+  </text>
+
+  <!-- SECTION 1: FLASH PARTITION MAP (LEFT) -->
+  <g transform="translate(50, 95)">
+    <!-- Container -->
+    <rect width="480" height="545" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="240" y="32" font-size="16" font-weight="600" fill="#38bdf8" text-anchor="middle">
+      512 KB Flash Partition Map (RM0390)
+    </text>
+
+    <!-- Sector 0 & 1: Bootloader -->
+    <g transform="translate(25, 55)">
+      <rect width="430" height="65" rx="6" fill="url(#gradBoot)" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="15" y="26" font-size="14" font-weight="700" fill="#ffffff">SECTOR 0 &amp; 1: BOOTLOADER CORE (32 KB)</text>
+      <text x="15" y="45" font-size="11" fill="#bae6fd">0x08000000 - 0x08007FFF | Hardware CRC Engine, UART IAP Server &amp; Jump Logic</text>
+      <text x="415" y="38" font-size="12" font-weight="700" fill="#ffffff" text-anchor="end">LOCKED</text>
+    </g>
+
+    <!-- Sector 2: Boot Metadata -->
+    <g transform="translate(25, 130)">
+      <rect width="430" height="55" rx="6" fill="url(#gradMeta)" stroke="#fb923c" stroke-width="1.5"/>
+      <text x="15" y="24" font-size="13" font-weight="700" fill="#ffffff">SECTOR 2: BOOT METADATA &amp; NV STATE (16 KB)</text>
+      <text x="15" y="42" font-size="11" fill="#fed7aa">0x08008000 - 0x0800BFFF | Active Slot, State Flags, Boot Attempt Counter</text>
+      <text x="415" y="34" font-size="12" font-weight="700" fill="#ffffff" text-anchor="end">NVRAM</text>
+    </g>
+
+    <!-- Sector 3: Reserved -->
+    <g transform="translate(25, 195)">
+      <rect width="430" height="40" rx="6" fill="#334155" stroke="#475569" stroke-width="1"/>
+      <text x="15" y="25" font-size="12" font-weight="600" fill="#94a3b8">SECTOR 3: RESERVED CONFIGURATION STORAGE (16 KB) [0x0800C000]</text>
+    </g>
+
+    <!-- Sector 4 & 5: Slot A -->
+    <g transform="translate(25, 245)">
+      <rect width="430" height="135" rx="6" fill="url(#gradSlotA)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="15" y="26" font-size="14" font-weight="700" fill="#ffffff">SECTOR 4 &amp; 5: APPLICATION SLOT A (192 KB)</text>
+      <text x="15" y="46" font-size="11" fill="#a7f3d0">0x08010000 - 0x0803FFFF | Primary / Factory Application Partition</text>
+      
+      <!-- Sub-blocks inside Slot A -->
+      <rect x="15" y="58" width="400" height="32" rx="4" fill="#047857" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="25" y="79" font-size="11" font-weight="600" fill="#ffffff">Offset 0x000: image_header_t (40 Bytes) [Magic, Size, Hardware CRC-32, SHA]</text>
+
+      <rect x="15" y="95" width="400" height="30" rx="4" fill="#065f46" stroke="#34d399" stroke-width="1"/>
+      <text x="25" y="115" font-size="11" fill="#d1fae5">Offset 0x200: Vector Table (MSP @ 0x2001FFFC, Reset_Handler, VTOR Target)</text>
+    </g>
+
+    <!-- Sector 6 & 7: Slot B -->
+    <g transform="translate(25, 390)">
+      <rect width="430" height="135" rx="6" fill="url(#gradSlotB)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="15" y="26" font-size="14" font-weight="700" fill="#ffffff">SECTOR 6 &amp; 7: APPLICATION SLOT B (256 KB)</text>
+      <text x="15" y="46" font-size="11" fill="#ddd6fe">0x08040000 - 0x0807FFFF | Secondary / OTA Staging Application Partition</text>
+      
+      <!-- Sub-blocks inside Slot B -->
+      <rect x="15" y="58" width="400" height="32" rx="4" fill="#6d28d9" stroke="#c4b5fd" stroke-width="1"/>
+      <text x="25" y="79" font-size="11" font-weight="600" fill="#ffffff">Offset 0x000: image_header_t (40 Bytes) [Magic, Size, Hardware CRC-32, SHA]</text>
+
+      <rect x="15" y="95" width="400" height="30" rx="4" fill="#5b21b6" stroke="#a78bfa" stroke-width="1"/>
+      <text x="25" y="115" font-size="11" fill="#ede9fe">Offset 0x200: Vector Table (MSP @ 0x2001FFFC, Reset_Handler, VTOR Target)</text>
+    </g>
+  </g>
+
+  <!-- SECTION 2: FAILSAFE DECISION & ROLLBACK FLOW (RIGHT) -->
+  <g transform="translate(570, 95)">
+    <!-- Container -->
+    <rect width="580" height="545" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="290" y="32" font-size="16" font-weight="600" fill="#38bdf8" text-anchor="middle">
+      Failsafe Verification &amp; Watchdog Rollback Logic
+    </text>
+
+    <!-- Power-On Reset Block -->
+    <g transform="translate(190, 50)">
+      <rect width="200" height="38" rx="19" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="100" y="24" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">POWER-ON / HW RESET</text>
+    </g>
+
+    <!-- Check Button Override -->
+    <path d="M 290 88 L 290 108" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <g transform="translate(150, 108)">
+      <polygon points="140,0 280,24 140,48 0,24" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="140" y="28" font-size="11" font-weight="600" fill="#fbbf24" text-anchor="middle">User Button B1 (PC13)?</text>
+    </g>
+
+    <!-- Branch YES -> IAP UART Server -->
+    <path d="M 290 156 L 290 176" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M 430 132 L 490 132 L 490 200" stroke="#fbbf24" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <text x="460" y="125" font-size="10" font-weight="700" fill="#fbbf24">PRESSED</text>
+
+    <g transform="translate(420, 200)">
+      <rect width="140" height="65" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="70" y="24" font-size="11" font-weight="700" fill="#a5b4fc" text-anchor="middle">IAP FLASHER MODE</text>
+      <text x="70" y="42" font-size="10" fill="#c7d2fe" text-anchor="middle">Listen on USART2</text>
+      <text x="70" y="56" font-size="9" fill="#94a3b8" text-anchor="middle">115200 8N1 VCP</text>
+    </g>
+
+    <!-- Inspect Metadata State -->
+    <g transform="translate(130, 176)">
+      <rect width="240" height="48" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="120" y="20" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">READ METADATA RECORD</text>
+      <text x="120" y="38" font-size="10" fill="#94a3b8" text-anchor="middle">Check Active Slot &amp; State Flags</text>
+    </g>
+
+    <!-- Decision: Is Slot Testing? -->
+    <path d="M 250 224 L 250 244" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <g transform="translate(130, 244)">
+      <polygon points="120,0 240,24 120,48 0,24" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="120" y="28" font-size="11" font-weight="600" fill="#e2e8f0" text-anchor="middle">State == TESTING?</text>
+    </g>
+
+    <!-- Branch YES: Check retry count -->
+    <path d="M 130 268 L 70 268 L 70 320" stroke="#f87171" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <text x="95" y="260" font-size="10" font-weight="700" fill="#f87171">YES</text>
+
+    <g transform="translate(10, 320)">
+      <rect width="130" height="70" rx="6" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="65" y="20" font-size="10" font-weight="700" fill="#fca5a5" text-anchor="middle">PROBATION CHECK</text>
+      <text x="65" y="36" font-size="9" fill="#fecaca" text-anchor="middle">Tries &gt; Max (3)?</text>
+      <text x="65" y="52" font-size="9" font-weight="700" fill="#f87171" text-anchor="middle">TRIGGER ROLLBACK</text>
+      <text x="65" y="64" font-size="8" fill="#cbd5e1" text-anchor="middle">Switch to fallback</text>
+    </g>
+
+    <!-- Image Verification Engine -->
+    <path d="M 250 292 L 250 320" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="258" y="308" font-size="10" font-weight="700" fill="#38bdf8">NO</text>
+    <path d="M 70 390 L 70 415 L 140 415" stroke="#f87171" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+    <g transform="translate(140, 320)">
+      <rect width="250" height="85" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+      <text x="125" y="22" font-size="12" font-weight="700" fill="#34d399" text-anchor="middle">IMAGE INTEGRITY VALIDATION</text>
+      <text x="15" y="42" font-size="10" fill="#94a3b8">1. Header Magic ('BOOT') &amp; Header CRC-32</text>
+      <text x="15" y="57" font-size="10" fill="#94a3b8">2. Hardware STM32 CRC-32 over payload</text>
+      <text x="15" y="72" font-size="10" fill="#94a3b8">3. MSP in SRAM (0x20000000-0x20020000) &amp; Thumb bit</text>
+    </g>
+
+    <!-- Branch Pass / Fail -->
+    <path d="M 265 405 L 265 435" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <g transform="translate(130, 435)">
+      <polygon points="135,0 270,24 135,48 0,24" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+      <text x="135" y="28" font-size="11" font-weight="600" fill="#a7f3d0" text-anchor="middle">All Checks Passed?</text>
+    </g>
+
+    <!-- Launch App -->
+    <path d="M 265 483 L 265 500" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="275" y="495" font-size="10" font-weight="700" fill="#10b981">YES</text>
+
+    <g transform="translate(145, 500)">
+      <rect width="240" height="38" rx="6" fill="#065f46" stroke="#34d399" stroke-width="1.5"/>
+      <text x="120" y="24" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">
+        RELOCATE VTOR &amp; JUMP TO APP
+      </text>
+    </g>
+
+    <!-- Fail -> Fallback / IAP -->
+    <path d="M 400 459 L 460 459 L 460 300 L 490 300" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <text x="420" y="450" font-size="10" font-weight="700" fill="#ef4444">FAIL</text>
+  </g>
+</svg>
